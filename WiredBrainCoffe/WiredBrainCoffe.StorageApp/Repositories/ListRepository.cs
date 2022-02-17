@@ -5,9 +5,14 @@ using WiredBrainCoffe.StorageApp.Entities;
 
 namespace WiredBrainCoffe.StorageApp.Repositories
 {
-    public class GenericRepository<T> where T : IEntity
+    public class ListRepository<T> : IRepository<T> where T : IEntity
     {
         private readonly List<T> _items = new();
+
+        public IEnumerable<T> GetAll()
+        {
+            return _items.ToList();
+        }
 
         public T GetById(int id)
         {
@@ -22,10 +27,7 @@ namespace WiredBrainCoffe.StorageApp.Repositories
 
         public void Save()
         {
-            foreach (var item in _items)
-            {
-                Console.WriteLine(item);
-            }
+            // It is saved already
         }
         public void Remove(T item)
         {
