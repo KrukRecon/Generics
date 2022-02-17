@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using WiredBrainCoffe.StorageApp.Entities;
@@ -10,9 +11,11 @@ namespace WiredBrainCoffe.StorageApp.Repositories
         private readonly DbContext _dbContext;
         private readonly DbSet<T> _dbSet;
 
+        public event EventHandler<T>? ItemAdded;
+
         public SqlRepository(DbContext dbContext)
         {
-            _dbContext = dbContext;
+            _dbContext = dbContext; 
             _dbSet = _dbContext.Set<T>();
         }
 
@@ -29,6 +32,7 @@ namespace WiredBrainCoffe.StorageApp.Repositories
         public void Add(T item)
         {
             _dbSet.Add(item);
+            ItemAdded?.Invoke(this, item);
         }
 
         public void Save()

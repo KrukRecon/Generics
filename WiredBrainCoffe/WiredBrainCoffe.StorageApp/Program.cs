@@ -10,6 +10,7 @@ namespace WiredBrainCoffe.StorageApp
         static void Main(string[] args)
         {
             var employeeRepository = new SqlRepository<Employee>(new StorageAppDbContext());
+            employeeRepository.ItemAdded += EmployeeRepository_ItemAdded;
             EmployeeRepositoryMethod(employeeRepository);
             AddManagers(employeeRepository);
             GetEmployeeById(employeeRepository);
@@ -20,11 +21,24 @@ namespace WiredBrainCoffe.StorageApp
             WriteAllToConsole(organizationRepository);
         }
 
+        private static void EmployeeRepository_ItemAdded(object? sender, Employee e)
+        {
+            Console.WriteLine($"Employee added => {e.FirstName}");
+        }
+
         private static void AddManagers(IWriteRepository<Manager> managerRepository)
         {
-            managerRepository.Add(new Manager() {FirstName = "Piter"});
-            managerRepository.Add(new Manager() {FirstName = "Maca"});
-            managerRepository.Add(new Manager() {FirstName = "Trawon"});
+            var manager = new Manager() { FirstName = "Piter" };
+            var managerCopy = manager.Copy();
+
+            if (managerCopy is not null)
+            {
+                managerCopy.FirstName += "_Copy";
+                managerRepository.Add(managerCopy);
+            }
+            managerRepository.Add(manager);
+            managerRepository.Add(new Manager() { FirstName = "Maca" });
+            managerRepository.Add(new Manager() { FirstName = "Trawon" });
             managerRepository.Save();
         }
 
@@ -45,17 +59,23 @@ namespace WiredBrainCoffe.StorageApp
 
         private static void EmployeeRepositoryMethod(IRepository<Employee> employeeRepository)
         {
-            employeeRepository.Add(new Employee() {FirstName = "Adam"});
-            employeeRepository.Add(new Employee() {FirstName = "Majki"});
-            employeeRepository.Add(new Employee() {FirstName = "Karol"});
-            employeeRepository.Save();
+            var employees = new[]
+            {
+                new Employee() {FirstName = "Adam"},
+                new Employee() {FirstName = "Majki"},
+                new Employee() {FirstName = "Karol"},
+            };
+            employeeRepository.AddBatch(employees);
         }
 
         private static void OrganizationRepositoryMethod(IRepository<Organization> organizationRepository)
         {
-            organizationRepository.Add(new Organization() {Name = "Pluralsight"});
-            organizationRepository.Add(new Organization() {Name = "SDWorx"});
-            organizationRepository.Save();
+            var organizations = new[]
+            {
+                new Organization() {Name = "Pluralsight"},
+                new Organization() { Name = "SDWorx" },
+            };
+            organizationRepository.AddBatch(organizations);
         }
     }
 }
